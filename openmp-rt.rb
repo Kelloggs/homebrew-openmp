@@ -1,8 +1,8 @@
 require 'formula'
 
 class OpenmpRt < Formula
-  url "https://www.openmprtl.org/sites/default/files/libomp_20131209_oss.tgz"
-  sha1 "8a2bb24372dcddd275f374bcddfc0c5103cb0147"
+  url "https://www.openmprtl.org/sites/default/files/libomp_20140926_oss.tgz"
+  sha1 "488ff3874eb5c971523534cb3c987bfb5ce3addb"
   homepage 'https://www.openmprtl.org'
 
   def install
@@ -29,51 +29,38 @@ class OpenmpRt < Formula
 end
 
 __END__
-diff --git a/tools/check-tools.pl b/tools/check-tools.pl
-index 4001469..699e54d 100755
---- a/tools/check-tools.pl
-+++ b/tools/check-tools.pl
-@@ -447,12 +447,8 @@ if ( $intel ) {
- }; # if
- if ( $target_os eq "lin" or $target_os eq "mac" ) {
-     # check for gnu tools by default because touch-test.c is compiled with them.
--    push( @versions, [ "GNU C Compiler",     get_gnu_compiler_version( $gnu_compilers->{ $target_os }->{ c   } ) ] );
--    push( @versions, [ "GNU C++ Compiler",   get_gnu_compiler_version( $gnu_compilers->{ $target_os }->{ cpp } ) ] );
--    if ( $clang ) {
--        push( @versions, [ "Clang C Compiler",     get_clang_compiler_version( $clang_compilers->{ $target_os }->{ c   } ) ] );
--        push( @versions, [ "Clang C++ Compiler",   get_clang_compiler_version( $clang_compilers->{ $target_os }->{ cpp } ) ] );
--    }; 
-+    push( @versions, [ "Clang C Compiler",     get_clang_compiler_version( $clang_compilers->{ $target_os }->{ c   } ) ] );
-+    push( @versions, [ "Clang C++ Compiler",   get_clang_compiler_version( $clang_compilers->{ $target_os }->{ cpp } ) ] );
-     # if intel fortran has been checked then gnu fortran is unnecessary
-     # also, if user specifies clang as build compiler, then gfortran is assumed fortran compiler
-     if ( $fortran and not $intel ) {
+diff --git a/cmake/Intel/CFlags.cmake b/cmake/Intel/CFlags.cmake
+index d2a528a..fdce2d2 100644
+--- a/cmake/Intel/CFlags.cmake
++++ b/cmake/Intel/CFlags.cmake
+@@ -151,7 +151,6 @@ function(append_compiler_specific_linker_flags input_ld_flags input_ld_flags_lib
+             append_linker_flags("-def:${def_file}")
+         endif()
+     elseif(${MAC})
+-        append_linker_flags("-no-intel-extensions")
+         if(NOT ${STUBS_LIBRARY})
+             append_linker_flags_library("-pthread") # link in pthread library
+             append_linker_flags_library("-ldl") # link in libdl (dynamic loader library)
 diff --git a/src/makefile.mk b/src/makefile.mk
-index dfebc10..621bb38 100644
+index 083252a..6731a9d 100644
 --- a/src/makefile.mk
 +++ b/src/makefile.mk
-@@ -411,7 +411,6 @@ ifeq "$(os)" "lrb"
+@@ -432,9 +432,6 @@ ifeq "$(os)" "lrb"
+   ifeq "$(ld)" "$(c)"
+     ld-flags += -Wl,--warn-shared-textrel
      ld-flags += -Wl,--version-script=$(src_dir)exports_so.txt
-     ld-flags += -static-intel
-     # Don't link libcilk*.
+-    ld-flags += -static-intel
+-    # Don't link libcilk*.
 -    ld-flags += -no-intel-extensions
      # Discard unneeded dependencies.
      ld-flags += -Wl,--as-needed
  #    ld-flags += -nodefaultlibs
-@@ -430,7 +429,6 @@ ifeq "$(os)" "lrb"
- endif
- 
- ifeq "$(os)" "mac"
--    ld-flags += -no-intel-extensions
-     ld-flags += -single_module
-     ld-flags += -current_version $(VERSION).0 -compatibility_version $(VERSION).0
- endif
-@@ -1118,7 +1116,7 @@ ifeq "$(mac_os_new)" "1"
+@@ -1184,7 +1181,7 @@ ifeq "$(mac_os_new)" "1"
  else
      iomp$(obj) : $(lib_obj_files) external-symbols.lst external-objects.lst .rebuild
  	    $(target)
 -	    $(c) -r -nostartfiles -static-intel  -no-intel-extensions \
-+	    $(c) -r -nostartfiles -static-intel   \
++	    $(c) -r -nostartfiles \
  		-Wl,-unexported_symbols_list,external-symbols.lst \
  		-Wl,-non_global_symbols_strip_list,external-symbols.lst \
  		-filelist external-objects.lst \

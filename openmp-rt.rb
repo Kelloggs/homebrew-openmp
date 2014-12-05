@@ -8,7 +8,7 @@ class OpenmpRt < Formula
   def install
     ENV.append "CFLAGS", "-Wno-error=unused-command-line-argument-hard-error-in-future"
     ENV.append "CXFLAGS", "-Wno-error=unused-command-line-argument-hard-error-in-future"
-    
+
     args = [
         "compiler=#{ENV.compiler}", "Wno-error=unused-command-line-argument-hard-error-in-future"
     ]
